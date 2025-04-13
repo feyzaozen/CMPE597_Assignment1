@@ -4,7 +4,8 @@ import torch.optim as optim
 import numpy as np
 import os
 import matplotlib.pyplot as plt
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, classification_report
+import pandas as pd
 
 #These variables were saved in the scratch implementation to be used here.
 train_losses_scratch = np.load("train_losses_scratch.npy")
@@ -133,6 +134,22 @@ with torch.no_grad():
     _, predicted_test = torch.max(outputs_test, 1)
     final_test_acc = accuracy_score(y_test.numpy(), predicted_test.numpy())
     print(f"Final Test Accuracy: {final_test_acc:.4f}")
+
+#In this section, we printed a class-based version of the model evaluation metrics to assess which classes performed better.
+class_names = ['rabbit', 'yoga', 'hand', 'snowman', 'motorbike']
+model.eval()
+with torch.no_grad():
+    outputs_test = model(X_test_tensor)
+    _, y_pred_tensor = torch.max(outputs_test, 1)
+
+y_pred = y_pred_tensor.numpy()
+y_true = y_test.numpy()
+
+report_dict = classification_report(y_true, y_pred, target_names=class_names, output_dict=True)
+report_df = pd.DataFrame(report_dict).T
+
+print("\n📋 Per-Class Performance (PyTorch Implementation):")
+print(report_df[['precision', 'recall', 'f1-score']].round(4))
 
 #Here we rename the loss values from the PyTorch implementation to compare them with the scratch implementation,
 #which is done in below plots.

@@ -1,7 +1,9 @@
 import numpy as np
 import os
 import matplotlib.pyplot as plt
-from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc_auc_score, average_precision_score
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc_auc_score, average_precision_score, classification_report
+import pandas as pd
+
 
 #Data loader. This part uses the os module to streamline the data loading process. This way, the data loader can work in any machine.
 base_dir = os.path.dirname(os.path.dirname(__file__))
@@ -166,6 +168,19 @@ print(f"Test Accuracy: {accuracy:.4f}")
 print(f"Precision: {precision:.4f}, Recall: {recall:.4f}, F1-score: {f1:.4f}")
 print(f"AUC-ROC Score: {auc_roc:.4f}")
 print(f"AUC-PR Score: {auc_pr:.4f}")
+
+#In this section, we printed a class-based version of the model evaluation metrics to assess which classes performed better.
+class_names = ['rabbit', 'yoga', 'hand', 'snowman', 'motorbike']
+
+y_pred_probs = forward(X_test)[-1]
+y_pred = np.argmax(y_pred_probs, axis=1)  # predicted class indices
+y_true = np.argmax(y_test, axis=1)        # true class indices
+
+report_dict = classification_report(y_true, y_pred, target_names=class_names, output_dict=True)
+report_df = pd.DataFrame(report_dict).T
+
+print("\n📋 Per-Class Performance (Scratch Implementation):")
+print(report_df[['precision', 'recall', 'f1-score']].round(4))
 
 plt.figure(figsize=(10, 5))
 
